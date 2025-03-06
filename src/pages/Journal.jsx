@@ -4,20 +4,25 @@ import { useState, useEffect } from 'react';
 
 function Journal() {
   const [journal, setJournal] = useState("");
-  const [responseData, setResponseData] = useState(null);
+  const [label, setLabel] = useState("");
+  const [score , setScore] = useState(0)
   const [error, setError] = useState(null);  // State for handling errors
+  const [allEntries, setAllEntries] = useState([]);  // State to store all journal entries
+  const [expandedEntry, setExpandedEntry] = useState(null);  // State to store the currently expanded entry
 
   const handleChange = (evt) => {
     setJournal(evt.target.value);
   }
 
   const handleSubmit = () => {
+    console.log("Submit clicked"); // Debugging statement
     fetchResult(journal);
   }
 
   const fetchResult = async (journalText) => {
     const url = "http://127.0.0.1:5000/analyze_journal";
     try {
+      console.log("Fetching analysis for journal entry"); // Debugging statement
       const response = await fetch(url, {
         method: "POST",
         headers: {
@@ -31,13 +36,41 @@ function Journal() {
       }
 
       const data = await response.json();
-      setResponseData(data);
+      setLabel( data["data"][0].label)
+      setScore(data["data"][0].score*100)
+      console.log("Analysis response data:", data["data"][0].score*100); // Debugging statement
       setError(null);  // Clear any previous errors
+      fetchJournals();  // Refresh the list of all entries
     } catch (error) {
       console.error('Error fetching data:', error);
       setError('An error occurred while analyzing the journal entry. Please try again.');
     }
   }
+
+  const fetchJournals = async () => {
+    try {
+      console.log("Fetching all journal entries"); // Debugging statement
+      const response = await fetch("http://127.0.0.1:5000/retrive_journal");
+      if (!response.ok) {
+        throw new Error(`Some error occurred while retrieving journal entries: ${response.status}`);
+      }
+      const data = await response.json();
+      setAllEntries(data);  // Assuming the response is an array of journal entries
+      console.log("Fetched journal entries:", data); // Debugging statement
+    } catch (error) {
+      console.error('Error retrieving journals:', error);
+      setError('An error occurred while retrieving journal entries. Please try again.');
+    }
+  }
+
+  const handleEntryClick = (index) => {
+    console.log(`Entry ${index + 1} clicked`); // Debugging statement
+    setExpandedEntry(expandedEntry === index ? null : index);  // Toggle expand/collapse
+  }
+
+  useEffect(() => {
+    fetchJournals();
+  }, []);
 
   const formatDate = (timestamp) => {
     const date = new Date(timestamp);
@@ -86,29 +119,43 @@ function Journal() {
         </button>
         {error && <p className="text-red-500 mt-4">{error}</p>}  
       </motion.div>
-
-      {responseData && (
-        <motion.div
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.2 }}
-          className="mt-12 card p-6"
-        >
+        
+        
           <h2 className="text-2xl font-bold mb-4">Analysis Dashboard</h2>
-          <div className="mb-4">
-            <h3 className="text-xl font-semibold">Overall Sentiment: {responseData.data.overallSentiment || 'Unknown'}</h3>
-          </div>
-          {responseData.data.entries.map((entry, index) => (
-            <div key={index} className="mb-4">
-              <p><strong>Date:</strong> {entry.date ? entry.date : formatDate(Date.now())}</p>
-              <p><strong>Time:</strong> {entry.time ? entry.time : formatTime(Date.now())}</p>
-              <p><strong>Mood:</strong> {entry.mood || 'Unknown'}</p>
-              <p><strong>Sentiment:</strong> {entry.sentiment || 'Unknown'}</p>
-              <p><strong>Emotional Triggers:</strong> {entry.emotionalTriggers ? entry.emotionalTriggers.join(', ') : 'None'}</p>  
+            <div className="mb-4">
+              <p><strong>Sentiment:</strong> {label}</p>
+              <p><strong>Emotional Triggers:</strong> {score}</p>  
             </div>
+          
+       
+      <motion.div
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.2 }}
+        className="mt-12 card p-6"
+      >
+        <h2 className="text-2xl font-bold mb-4">Previous Journal Entries</h2>
+        <ul className="space-y-4">
+          {allEntries.map((entry, index) => (
+            <li key={index}>
+              <div
+                className="cursor-pointer p-4 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 transition-all duration-300"
+                onClick={() => handleEntryClick(index)}
+              >
+                <div className="flex justify-between items-center">
+                  <p><strong>Entry {index + 1}</strong></p>
+                  <span>{expandedEntry === index ? '▲' : '▼'}</span>
+                </div>
+                {expandedEntry === index && (
+                  <div className="mt-4">
+                    <p>{entry.text}</p> 
+                  </div>
+                )}
+              </div>
+            </li>
           ))}
-        </motion.div>
-      )}
+        </ul>
+      </motion.div>
     </motion.div>
   );
 }
