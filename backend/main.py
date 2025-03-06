@@ -332,21 +332,21 @@ def store_data(collection_name, data):
     
 
 # user preference data --------------------------------------------------------------------------------------storing
-@app.route('/userpreference',methods=["POST"]) 
-def set_user_preferences():
-    data=request.get_json()
-    if "userpreference" in data:
-        input_text=json.dumps(data["userpreferences"])
-        if input_text["userpreferences"]["preference"] == "mental":
-            result = process_cbt_exercises(input_text)
-            return jsonify(result)
-        elif input_text["userpreferences"]["preference"] == "physical":
-            result = generate_coach_plan(input_text)
-            return jsonify(result)
-        else:
-            return jsonify({"message":"invalid input data"})
-    else:
-        return jsonify({"message":"havent provided valid endpoint"}) ,400
+# @app.route('/userpreference',methods=["POST"]) 
+# def set_user_preferences():
+#     data=request.get_json()
+#     if "userpreference" in data:
+#         input_text=json.dumps(data["userpreferences"])
+#         if input_text["userpreferences"]["preference"] == "mental":
+#             result = process_cbt_exercises(input_text)
+#             return jsonify(result)
+#         elif input_text["userpreferences"]["preference"] == "physical":
+#             result = generate_coach_plan(input_text)
+#             return jsonify(result)
+#         else:
+#             return jsonify({"message":"invalid input data"})
+#     else:
+#         return jsonify({"message":"havent provided valid endpoint"}) ,400
 
             
 # suggest exercises ----------------------------------------------------------------------------------------------------------------storing
