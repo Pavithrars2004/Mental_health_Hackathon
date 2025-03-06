@@ -109,15 +109,15 @@ def process_journal(input_text: str):
 
 
 # Function to suggest CBT exercises, guided meditations, or breathing exercises **
-def process_cbt_exercises(input_text):
-    try:
-        model = genai.GenerativeModel(model_name="gemini-1.5-pro")
-        prompt = f"Imaging yourself as a psychologist with 25 years of experience there are three types of preferences user has easy , high , intense based on these preferences generate some mental health exercises like meditation or breathing Provide the output as a properly formatted JSON object without any additional text or explanations. Ensure all values are valid JSON (e.g., use strings for ranges like '8-12'). Here is the input data: {input_text}"
-        response = model.generate_content([prompt])
-        result_json = json.loads(response.text.strip('```json\n'))
-        return result_json
-    except Exception as e:
-        return {"error": str(e)}
+# def process_cbt_exercises(input_text):
+#     try:
+#         model = genai.GenerativeModel(model_name="gemini-1.5-pro")
+#         prompt = f"Imaging yourself as a psychologist with 25 years of experience there are three types of preferences user has easy , high , intense based on these preferences generate some mental health exercises like meditation or breathing Provide the output as a properly formatted JSON object without any additional text or explanations. Ensure all values are valid JSON (e.g., use strings for ranges like '8-12'). Here is the input data: {input_text}"
+#         response = model.generate_content([prompt])
+#         result_json = json.loads(response.text.strip('```json\n'))
+#         return result_json
+#     except Exception as e:
+#         return {"error": str(e)}
 
 
 # Endpoint to receive POST requests for generating diet plan
@@ -139,38 +139,38 @@ def process_cbt_exercises(input_text):
 #         return jsonify({'error': 'No biometric_data provided'}), 400
 
 # Endpoint to receive POST requests for food recognition
-@app.route('/food-recognition', methods=['POST'])
-def recognize_food():
-    if 'file' not in request.files:
-        return jsonify({"error": "No file provided"}), 400
+# @app.route('/food-recognition', methods=['POST'])
+# def recognize_food():
+#     if 'file' not in request.files:
+#         return jsonify({"error": "No file provided"}), 400
 
-    uploaded_file = request.files['file']
-    try:
-        image = Image.open(uploaded_file)
-        buf = io.BytesIO()
-        image.save(buf, format="JPEG")
-        img_bytes = buf.getvalue()
+#     uploaded_file = request.files['file']
+#     try:
+#         image = Image.open(uploaded_file)
+#         buf = io.BytesIO()
+#         image.save(buf, format="JPEG")
+#         img_bytes = buf.getvalue()
 
-        model = genai.GenerativeModel(model_name="gemini-1.5-pro")
-        prompt = "Recognize the food item in the picture and provide its nutrient values provide the output in JSON format easy to parse as javascript object no text output."
-        response = model.generate_content(
-            [
-                {
-                    "mime_type": "image/jpeg",
-                    "data": base64.b64encode(img_bytes).decode("utf-8"),
-                },
-                prompt,
-            ]
-        )
-        internal_json_string = response.text.strip('```json\n')
-        result_json = json.loads(internal_json_string)
-        success, message = store_data('food_recognition', result_json)
-        if success:
-            return jsonify({"message": message, "data": result_json})
-        else:
-            return jsonify({"error": message}), 500
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+#         model = genai.GenerativeModel(model_name="gemini-1.5-pro")
+#         prompt = "Recognize the food item in the picture and provide its nutrient values provide the output in JSON format easy to parse as javascript object no text output."
+#         response = model.generate_content(
+#             [
+#                 {
+#                     "mime_type": "image/jpeg",
+#                     "data": base64.b64encode(img_bytes).decode("utf-8"),
+#                 },
+#                 prompt,
+#             ]
+#         )
+#         internal_json_string = response.text.strip('```json\n')
+#         result_json = json.loads(internal_json_string)
+#         success, message = store_data('food_recognition', result_json)
+#         if success:
+#             return jsonify({"message": message, "data": result_json})
+#         else:
+#             return jsonify({"error": message}), 500
+#     except Exception as e:
+#         return jsonify({"error": str(e)}), 500
 
 # Endpoint to receive POST requests for mental health assessment
 # @app.route('/analyze_mental_health', methods=['POST'])
@@ -193,69 +193,69 @@ def recognize_food():
 
 
 # Endpoint to receive POST requests for CBT exercises, guided meditations, or breathing exercises
-@app.route('/retrive_journals',methods=["GET"])
-def get_journals():
-    success,data=retrieve_data('dailyjournals')
-    if success:
-        return jsonify(data)
-    else:
-        return jsonify({"error":data})
+# @app.route('/retrive_journals',methods=["GET"])
+# def get_journals():
+#     success,data=retrieve_data('dailyjournals')
+#     if success:
+#         return jsonify(data)
+#     else:
+#         return jsonify({"error":data})
 
 
 
 
 
 # Endpoint to retrieve diet plan
-@app.route('/retrieve_diet_plan', methods=['GET'])
-def retrieve_diet_plan():
-    success, data = retrieve_data('diet_plans')
-    if success:
-        return jsonify(data)
-    else:
-        return jsonify({"error": data}), 500
+# @app.route('/retrieve_diet_plan', methods=['GET'])
+# def retrieve_diet_plan():
+#     success, data = retrieve_data('diet_plans')
+#     if success:
+#         return jsonify(data)
+#     else:
+#         return jsonify({"error": data}), 500
 
 # Endpoint to retrieve mental health assessment
-@app.route('/retrieve_mental_health_assessment', methods=['GET'])
-def retrieve_mental_health_assessment():
-    success, data = retrieve_data('mental_health_assessments')
-    if success:
-        return jsonify(data)
-    else:
-        return jsonify({"error": data}), 500
+# @app.route('/retrieve_mental_health_assessment', methods=['GET'])
+# def retrieve_mental_health_assessment():
+#     success, data = retrieve_data('mental_health_assessments')
+#     if success:
+#         return jsonify(data)
+#     else:
+#         return jsonify({"error": data}), 500
 
 # Endpoint to retrieve journal analysis   --------------------------------------------------------------------------------retriving
-@app.route('/retrieve_journal_analysis', methods=['GET'])
-def retrieve_journal_analysis():
-    success, data = retrieve_data('journal_analyses')
-    if success:
-        return jsonify(data)
-    else:
-        return jsonify({"error": data}), 500
+# @app.route('/retrieve_journal_analysis', methods=['GET'])
+# def retrieve_journal_analysis():
+#     success, data = retrieve_data('journal_analyses')
+#     if success:
+#         return jsonify(data)
+#     else:
+#         return jsonify({"error": data}), 500
 
 
 
 
 # Endpoint to retrieve fitness plan        -------------------------------------------------------------------------------retriving
-@app.route('/retrieve_fitness_plan', methods=['GET'])
-def retrieve_fitness_plan():
-    success, data = retrieve_data('fitness_plans')
-    if success:
-        return jsonify(data)
-    else:
-        return jsonify({"error": data}), 500
+# @app.route('/retrieve_fitness_plan', methods=['GET'])
+# def retrieve_fitness_plan():
+#     success, data = retrieve_data('fitness_plans')
+#     if success:
+#         return jsonify(data)
+#     else:
+#         return jsonify({"error": data}), 500
 
 
 
 
 # Endpoint to retrieve CBT exercises  -------------------------------------------------------------------------------------- retriving
 # 
-@app.route('/retrieve_cbt_exercises', methods=['GET'])
-def retrieve_cbt_exercises():
-    success, data = retrieve_data('cbt_exercises')
-    if success:
-        return jsonify(data)
-    else:
-        return jsonify({"error": data}), 500
+# @app.route('/retrieve_cbt_exercises', methods=['GET'])
+# def retrieve_cbt_exercises():
+#     success, data = retrieve_data('cbt_exercises')
+#     if success:
+#         return jsonify(data)
+#     else:
+#         return jsonify({"error": data}), 500
 
 
 
@@ -350,21 +350,21 @@ def store_data(collection_name, data):
 
             
 # suggest exercises ----------------------------------------------------------------------------------------------------------------storing
-@app.route('/suggest_exercises', methods=['POST'])
-def suggest_exercises():
-    data = request.get_json()
-    if 'data' not in data:
-        return jsonify({"error": "No data provided"}), 400
-    input_text = json.dumps(data['data'])
-    result = process_cbt_exercises(input_text)
-    if 'error' not in result:
-        success, message = store_data('cbt_exercises', result)
-        if success:
-            return jsonify({"message": message, "data": result})
-        else:
-            return jsonify({"error": message}), 500
-    else:
-        return jsonify(result), 400
+# @app.route('/suggest_exercises', methods=['POST'])
+# def suggest_exercises():
+#     data = request.get_json()
+#     if 'data' not in data:
+#         return jsonify({"error": "No data provided"}), 400
+#     input_text = json.dumps(data['data'])
+#     result = process_cbt_exercises(input_text)
+#     if 'error' not in result:
+#         success, message = store_data('cbt_exercises', result)
+#         if success:
+#             return jsonify({"message": message, "data": result})
+#         else:
+#             return jsonify({"error": message}), 500
+#     else:
+#         return jsonify(result), 400
 
 
 @app.route('/retrive_journal',methods=["GET"])
